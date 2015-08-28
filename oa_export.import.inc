@@ -469,7 +469,7 @@ function oa_export_node_insert($node) {
  */
 function oa_export_import_update_paragraphs($entity_type, &$entity, $original_entity, $field_name, $language = LANGUAGE_NONE) {
 
-
+  $file_fields = array();
   foreach ($entity->field_oa_related[LANGUAGE_NONE] as $item) {
     // Try loading a paragraph item entity. We use this because it takes
     // revisions into account.
@@ -478,7 +478,6 @@ function oa_export_import_update_paragraphs($entity_type, &$entity, $original_en
       return $file_fields;
     }
   }
-
 
   $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
   $old_items = $entity_wrapper->{$field_name};
