@@ -481,7 +481,7 @@ function oa_export_import_update_paragraphs($entity_type, &$entity, $original_en
 
 
   $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
-  $old_items = $entity_wrapper->{$field_name}->value();
+  $old_items = $entity_wrapper->{$field_name};
   if (!is_array($old_items)) {
     $old_items = array($old_items);
   }
@@ -500,7 +500,7 @@ function oa_export_import_update_paragraphs($entity_type, &$entity, $original_en
         $merged_file = array_merge($original_file, $new_file);
 
         // Replace the file in field_oa_media.
-        $entity_wrapper->{$field_name}->value()[$delta] = $merged_file;
+        $entity_wrapper->{$field_name}[$delta] = $merged_file;
       }
     }
   }
