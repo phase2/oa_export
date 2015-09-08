@@ -27,6 +27,7 @@ function oa_export_entity_export($entity_type, $entity, &$results) {
     if (entity_type_is_fieldable($entity_type)) {
       oa_export_fields_export($entity, $entity_type, $results);
     }
+
     // Check for comments on this entity.
     oa_export_entity_comments_export($entity_id, $results);
 

@@ -1,6 +1,7 @@
 <?php
 
 require_once 'oa_export.fields.import.inc';
+require_once 'oa_export.extras.import.inc';
 
 /**
  * Helper function to import entities.
@@ -53,6 +54,13 @@ function oa_export_entity_import($entity_type, &$entity, $key, &$imports, &$map)
     $entity->is_new = TRUE;
     // Save the entity.
     entity_save($entity_type, $entity);
+
+    // Get the original entity id before the entity was saved.
+    list(,$orig_entity_id) = explode(':', $key);
+
+    // We need to check to see if the entity is panelized and if so import it.
+    oa_export_entity_panelizer_import($entity, $entity_type, $orig_entity_id);
+
     // Mark the entity as imported.
     $entity->oa_imported = TRUE;
   }
@@ -138,7 +146,12 @@ function oa_export_oa_import_entity_taxonomy_term(&$entity, $key, &$imports, &$m
       continue;
     }
   }
-  if ($exists) {
+  // If this is not a Blueprint then we don't want to create another term with the same name. This keeps us from
+  // re-importing taxonomy, for example, that OA defines by default. This term would not be a blueprint.
+  // @todo: If a taxonomy term that was exported just happens to have the same tid as one that already exists this
+  // @todo: could still be an issue. Need to think this out and maybe we need to compare all columns in the database:
+  // @todo: tid, vid, name, description to make sure this doesn't just happen to have the same name but a different description.
+  if ($exists && empty($term->field_oa_clone_space)) {
     // Just pretend we already imported it.
     $entity->oa_imported = TRUE;
   }
