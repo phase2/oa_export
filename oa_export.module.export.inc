@@ -76,6 +76,7 @@ function oa_export_generate_new_module_form(&$form, &$form_state) {
       t('May only contain lowercase letters, numbers and underscores. <strong>Try to avoid conflicts with the names of existing Drupal projects.</strong>')
     ),
     '#default_value' => isset($form_state['input']['machine_name']) ? $form_state['input']['machine_name'] : '',
+    '#required' => FALSE,
     '#machine_name' => array(
       'exists' => 'oa_export_module_machine_name_validate',
       'source' => array('generate_module_form', 'name'),
