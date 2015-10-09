@@ -39,29 +39,16 @@ function oa_export_entity_import($entity_type, $entity, $key, $imports, &$map) {
     }
     // Save the raw entity BEFORE importing fields to map the new entity_id
     if (!isset($entity->oa_imported)) {
-      $entity->is_new = TRUE;
-      entity_save($entity_type, $entity);
-      // Get new entity_id
-      list($entity_id) = entity_extract_ids($entity_type, $entity);
+      $entity_id = _oa_export_new_entity_id($entity_type, $entity);
       if (isset($entity_id)) {
         // Update the map so we don't import this again recursively.
+        // Otherwise the field_import might do this again.
         $map[$key] = $entity_id;
-        // Load the REAL new entity and copy the field data from the imported entity.
-        // Need this otherwise when we save the field data later it will be
-        // resaving the same non-field properties, such as panelizer that
-        // have already been saved.
-        $new_entity = entity_load_single($entity_type, $entity_id);
-        if (entity_type_is_fieldable($entity_type)) {
-          oa_export_copy_field_data($entity, $new_entity);
-        }
-        $entity = $new_entity;
       }
     }
 
     // If the entity if fieldable check for fields that may need to be imported.
     if (entity_type_is_fieldable($entity_type)) {
-      // Allow entity to be re-saved with new field data
-      $entity->oa_imported = FALSE;
       oa_export_fields_import($entity_type, $entity, $key, $imports, $map);
     }
 
@@ -75,7 +62,7 @@ function oa_export_entity_import($entity_type, $entity, $key, $imports, &$map) {
     drupal_alter('oa_import_clone_entity', $entity, $context);
   }
 
-  // Check again for final save.
+  // Now save the entity if it hasn't been already.
   if (!isset($entity->oa_imported)) {
     entity_save($entity_type, $entity);
     // Mark the entity as imported.
@@ -90,6 +77,42 @@ function oa_export_entity_import($entity_type, $entity, $key, $imports, &$map) {
   }
 
   return (isset($entity_id)) ? $entity_id : FALSE;
+}
+
+/**
+ * Helper function to create and return a new entity_id based on an
+ * existing entity
+ *
+ * Some code taken from core entity_extract_ids() function.
+ *
+ * @param $entity_type
+ *   The type of entity passed in $entity
+ * @param $entity
+ *   entity that we want a new instance of
+ *   This is updated with the new id/revision
+ * @return int the entity_id of the new entity
+ */
+function _oa_export_new_entity_id($entity_type, &$entity) {
+  // To create an entity, we need to know the bundle-key and the bundle-value
+  $info = entity_get_info($entity_type);
+  // Get the bundle key from the entity info array
+  $bundle_key = $info['entity keys']['bundle'];
+  // Get the actual bundle from the entity itself
+  $bundle = $entity->{$bundle_key};
+  // Create a new entity of that same type and bundle
+  $new_entity = entity_create($entity_type, array($bundle_key => $bundle));
+  // Save it so it gets a new entity_id
+  entity_save($entity_type, $new_entity);
+  // Grab the new entity_id
+  $entity_id = $new_entity->{$info['entity keys']['id']};
+  // Update original $entity with the new id/vid
+  $entity->{$info['entity keys']['id']} = $new_entity->{$info['entity keys']['id']};
+  if (!empty($info['entity keys']['revision'])) {
+    $entity->{$info['entity keys']['revision']} = $new_entity->{$info['entity keys']['revision']};
+  }
+  $entity->original = $new_entity;
+
+  return $entity_id;
 }
 
 /**

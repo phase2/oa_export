@@ -19,7 +19,6 @@
 function oa_export_oa_import_extra_menu($link, $key, $imports, &$map) {
 
   $new_mlid = FALSE;
-  print "Importing menu link $key\n";
   return FALSE;
 
   if (!empty($link)) {
@@ -79,7 +78,6 @@ function oa_export_oa_import_extra_menu($link, $key, $imports, &$map) {
 function oa_export_oa_import_extra_role($role, $key, $imports, &$map) {
 
   $new_id = FALSE;
-  print "Importing role $key\n";
   return FALSE;
 
   if (!empty($role)) {
@@ -146,7 +144,6 @@ function oa_export_oa_import_extra_role($role, $key, $imports, &$map) {
  */
 function oa_export_oa_import_extra_permission($permission, $key, $imports, &$map) {
 
-  print "Importing permission $key\n";
   return FALSE;
 
   if (!empty($permission)) {
