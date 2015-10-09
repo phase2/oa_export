@@ -259,6 +259,14 @@ function oa_export_generate_module_form_validate(&$form, &$form_state) {
         )
       ));
     }
+
+    if (file_exists($module_path . '/' . OA_EXPORT_DIR)) {
+      // module already has an export, so rename it temporarily until we are done
+      if (file_exists($module_path . '/' . OA_EXPORT_TEMP_DIR)) {
+        file_unmanaged_delete_recursive($module_path . '/' . OA_EXPORT_TEMP_DIR);
+      }
+      rename($module_path . '/' . OA_EXPORT_DIR, $module_path . '/' . OA_EXPORT_TEMP_DIR);
+    }
   }
 
   $form['#module_name'] = $module_name;

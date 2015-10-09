@@ -273,6 +273,10 @@ function oa_export_batch_module_export_finished($success, $results, $operations)
       $message = 'If you exported the blueprint as a new module then just enable the module on the system you want to import the blueprint to. ';
       $message .= 'If you exported the blueprint to an existing module, update the existing module on the system you are running the import and run a database update.';
       drupal_set_message(t($message), 'warning');
+      // Clean up any old exports
+      if (file_exists($module_path . '/' . OA_EXPORT_TEMP_DIR)) {
+        file_unmanaged_delete_recursive($module_path . '/' . OA_EXPORT_TEMP_DIR);
+      }
       // Clean up just the session variables.
       oa_export_cleanup();
     }
